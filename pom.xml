@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.rnetai</groupId>
-    <artifactId>rnet-sso</artifactId>
+    <artifactId>rnet-oauth</artifactId>
     <version>1.0.0</version>
 
-    <name>RNet SSO Java</name>
-    <description>Java library for RNet SSO integration, allowing users to authenticate and pay for AI model token costs using their RNet account.</description>
+    <name>RNet oauth Java</name>
+    <description>Java library for RNet oauth integration, allowing users to authenticate and pay for AI model token costs using their RNet account.</description>
 
     <url>https://www.rnetai.org/docs</url>
 
@@ -29,9 +29,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/rNetAi/rnet-sso-java.git</connection>
-        <developerConnection>scm:git:ssh://github.com/rNetAi/rnet-sso-java.git</developerConnection>
-        <url>https://github.com/rNetAi/rnet-sso-java</url>
+        <connection>scm:git:git://github.com/rNetAi/rnet-oauth-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com/rNetAi/rnet-oauth-java.git</developerConnection>
+        <url>https://github.com/rNetAi/rnet-oauth-java</url>
     </scm>
 
     <properties>
@@ -70,6 +70,12 @@
             <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -81,6 +87,12 @@
                 <configuration>
                     <release>25</release>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
             </plugin>
 
             <plugin>

@@ -1,4 +1,4 @@
-package io.github.rnetai.sso;
+package io.github.rnetai.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -25,6 +25,11 @@ public class RNetAuth {
     public RNetAuth(RNetConfig config) {
         this.config = config;
         this.httpClient = HttpClient.newBuilder().build();
+    }
+
+    RNetAuth(RNetConfig config, HttpClient httpClient) {
+        this.config = config;
+        this.httpClient = httpClient;
     }
 
     public PKCEUtil.PKCE generatePKCE() {
@@ -55,14 +60,15 @@ public class RNetAuth {
         return url.toString();
     }
 
-    public Map<String, Object> exchangeCodeForToken(String code, String codeVerifier) throws IOException, InterruptedException {
+    public Map<String, Object> exchangeCodeForToken(String code, String codeVerifier)
+            throws IOException, InterruptedException {
         String tokenEndpoint = config.getIssuer() + "/oauth2/token";
-        
+
         Map<String, String> params = new HashMap<>();
         params.put("grant_type", "authorization_code");
         params.put("code", code);
         params.put("redirect_uri", config.getRedirectUri());
-        
+
         if (codeVerifier != null) {
             params.put("code_verifier", codeVerifier);
         }
@@ -72,7 +78,7 @@ public class RNetAuth {
 
     public Map<String, Object> refreshAccessToken(String refreshToken) throws IOException, InterruptedException {
         String tokenEndpoint = config.getIssuer() + "/oauth2/token";
-        
+
         Map<String, String> params = new HashMap<>();
         params.put("grant_type", "refresh_token");
         params.put("refresh_token", refreshToken);
@@ -80,7 +86,24 @@ public class RNetAuth {
         return postForm(tokenEndpoint, params, true);
     }
 
-    private Map<String, Object> postForm(String url, Map<String, String> params, boolean useBasicAuth) throws IOException, InterruptedException {
+    public Map<String, Object> getUserInfo(String accessToken) throws IOException, InterruptedException {
+        if (accessToken == null) {
+            throw new IllegalArgumentException("accessToken is required");
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(config.getIssuer() + "/userinfo"))
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + accessToken)
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return handleResponse(response);
+    }
+
+    private Map<String, Object> postForm(String url, Map<String, String> params, boolean useBasicAuth)
+            throws IOException, InterruptedException {
         String formBody = params.entrySet().stream()
                 .map(e -> urlEncode(e.getKey()) + "=" + urlEncode(e.getValue()))
                 .collect(Collectors.joining("&"));

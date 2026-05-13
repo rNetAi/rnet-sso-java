@@ -1,4 +1,4 @@
-package io.github.rnetai.sso;
+package io.github.rnetai.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -20,15 +20,30 @@ public class RNetAi {
     private final HttpClient httpClient;
 
     public RNetAi(RNetConfig config) {
+        if (config == null) {
+            throw new IllegalArgumentException("config is required");
+        }
         this.config = config;
         this.httpClient = HttpClient.newBuilder().build();
     }
 
-    public Map<String, Object> chat(Object body, String accessToken, String model) throws IOException, InterruptedException {
-        if (accessToken == null) throw new IllegalArgumentException("accessToken is required");
-        if (model == null) throw new IllegalArgumentException("model is required");
+    RNetAi(RNetConfig config, HttpClient httpClient) {
+        if (config == null) {
+            throw new IllegalArgumentException("config is required");
+        }
+        this.config = config;
+        this.httpClient = httpClient;
+    }
 
-        String url = config.getAiProvider() + "/ai?access_token=" + urlEncode(accessToken) + "&model=" + urlEncode(model);
+    public Map<String, Object> chat(Object body, String accessToken, String model)
+            throws IOException, InterruptedException {
+        if (accessToken == null)
+            throw new IllegalArgumentException("accessToken is required");
+        if (model == null)
+            throw new IllegalArgumentException("model is required");
+
+        String url = config.getAiProvider() + "/ai?access_token=" + urlEncode(accessToken) + "&model="
+                + urlEncode(model);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -40,11 +55,15 @@ public class RNetAi {
         return handleResponse(response);
     }
 
-    public java.io.InputStream chatStream(Object body, String accessToken, String model) throws IOException, InterruptedException {
-        if (accessToken == null) throw new IllegalArgumentException("accessToken is required");
-        if (model == null) throw new IllegalArgumentException("model is required");
+    public java.io.InputStream chatStream(Object body, String accessToken, String model)
+            throws IOException, InterruptedException {
+        if (accessToken == null)
+            throw new IllegalArgumentException("accessToken is required");
+        if (model == null)
+            throw new IllegalArgumentException("model is required");
 
-        String url = config.getAiProvider() + "/ai/stream?access_token=" + urlEncode(accessToken) + "&model=" + urlEncode(model);
+        String url = config.getAiProvider() + "/ai/stream?access_token=" + urlEncode(accessToken) + "&model="
+                + urlEncode(model);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -52,7 +71,8 @@ public class RNetAi {
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
                 .build();
 
-        HttpResponse<java.io.InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        HttpResponse<java.io.InputStream> response = httpClient.send(request,
+                HttpResponse.BodyHandlers.ofInputStream());
         if (response.statusCode() >= 400) {
             try (java.io.InputStream is = response.body()) {
                 String errorBody = new String(is.readAllBytes(), StandardCharsets.UTF_8);

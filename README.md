@@ -1,11 +1,12 @@
-# RNet Auth Java Library
+# RNet OAuth Java Library
 
-A lightweight Java library for integrating **RNet Auth** and **AI Provider** services. This library allows users to authenticate via RNet and pay for AI model token costs directly using their RNet account.
+A lightweight Java library for integrating **RNet OAuth** and **AI Provider** services. This library allows users to authenticate via RNet OAuth and pay for AI model token costs directly using their RNet account.
 
 ## Features
 
 - **OAuth2 PKCE Support**: Secure authorization code flow with automatic code verifier and challenge generation.
 - **Token Management**: Exchange authorization codes for tokens and refresh expired tokens.
+- **UserInfo Endpoint**: Fetch the authenticated user's RNet profile with an access token.
 - **AI Integration**: Easy methods to chat with AI models using standard or streaming responses.
 - **Lightweight**: Minimal dependencies (Jackson for JSON, SLF4J for logging).
 - **Modern Java**: Built for Java 25.
@@ -18,7 +19,7 @@ Add the following to your `pom.xml`:
 ```xml
 <dependency>
     <groupId>io.github.rnetai</groupId>
-    <artifactId>rnet-sso</artifactId>
+    <artifactId>rnet-oauth</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -58,7 +59,17 @@ Map<String, Object> refreshedTokens = auth.refreshAccessToken(refreshToken);
 String newAccessToken = (String) refreshedTokens.get("access_token");
 ```
 
-### 5. Chat with AI
+### 5. Get User Info
+```java
+Map<String, Object> userInfo = auth.getUserInfo(accessToken);
+System.out.println(userInfo.get("email"));
+System.out.println(userInfo.get("name"));
+```
+
+The UserInfo response comes from RNet's `/userinfo` endpoint and may include:
+`sub`, `email`, `email_verified`, `name`, `preferred_username`, `user_id`, `role`, and `status`.
+
+### 6. Chat with AI
 ```java
 Map<String, Object> payload = Map.of(
     "contents", List.of(
@@ -73,7 +84,7 @@ Map<String, Object> response = ai.chat(payload, accessToken, "gemini-2.5-flash-l
 System.out.println(response);
 ```
 
-### 6. Streaming AI Response
+### 7. Streaming AI Response
 ```java
 InputStream stream = ai.chatStream(payload, accessToken, "gemini-2.5-flash-lite");
 // Process the stream...

@@ -1,4 +1,4 @@
-package io.github.rnetai.sso;
+package io.github.rnetai.oauth;
 
 public class RNetConfig {
     private final String clientId;

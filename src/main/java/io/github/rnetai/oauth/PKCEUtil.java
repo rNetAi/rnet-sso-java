@@ -1,4 +1,4 @@
-package io.github.rnetai.sso;
+package io.github.rnetai.oauth;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -18,8 +18,13 @@ public class PKCEUtil {
             this.challenge = challenge;
         }
 
-        public String getVerifier() { return verifier; }
-        public String getChallenge() { return challenge; }
+        public String getVerifier() {
+            return verifier;
+        }
+
+        public String getChallenge() {
+            return challenge;
+        }
     }
 
     public static PKCE generate() {
